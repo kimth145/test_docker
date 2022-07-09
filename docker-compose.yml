@@ -1,0 +1,46 @@
+version: '3'
+services:
+  database:
+    build: 
+      dockerfile: Dockerfile
+      context: ./database
+    restart: always
+    environment:
+     MYSQL_ROOT_PASSWORD: root
+     MYSQL_DATABASE: test
+     MYSQL_USER: ais
+     MYSQL_PASSWORD: ais
+     TZ: "Asia/Tokyo"
+    ports:
+      - "6000:3306"
+    volumes:
+      - ./database/init:/docker-entrypoint-initdb.d
+      - ./database/data:/var/lib/mysql
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - db-net
+
+  backend:
+    build: 
+      dockerfile: Dockerfile
+      context: ./backend
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./backend:/app
+    networks:
+      - db-net
+    depends_on:
+      - database #host backend server.jsのDatabase
+
+  frontend:
+    build: 
+      dockerfile: Dockerfile
+      context: ./frontend
+    volumes:
+      - ./frontend:/app      
+    ports:
+      - "3000:3000"
+
+networks:
+  db-net:

@@ -1,0 +1,1 @@
+INSERT INTO visits (v_name) VALUES ('Nam');
